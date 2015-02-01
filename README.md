@@ -17,10 +17,16 @@ Log data from TekPower TP4000ZC multimeter to SD card with arduino uno &amp; ada
 
 
 void   RTC_DS1307::enable1Hz(void)
+
 {
+
     WIRE.beginTransmission(DS1307_ADDRESS);
+
     WIRE.write(7);
+
     WIRE.write(0x10);
+
     WIRE.endTransmission();
+
 }
 
