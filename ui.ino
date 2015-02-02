@@ -12,7 +12,7 @@ void logger_ui::begin(int led_pin)
 
 void logger_ui::tick(void)
 {
-  int delta_ms = millis() - m_state_changed_ms;
+  long delta_ms = millis() - m_state_changed_ms;
   
   if (digitalRead(m_led_pin))
   {

@@ -10,9 +10,9 @@ class logger_ui
     
   private:
     int      m_led_pin;
-    int      m_state_changed_ms;
-    int      m_on_dur_ms;
-    int      m_off_dur_ms;
+    long     m_state_changed_ms;
+    long     m_on_dur_ms;
+    long     m_off_dur_ms;
     boolean  m_repeat;
     boolean  m_logging;
     int      m_event;

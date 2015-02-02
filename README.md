@@ -13,6 +13,9 @@ Log data from TekPower TP4000ZC multimeter to SD card with arduino uno &amp; ada
 9. LED solid = ready to log
 10. LED blinking fast = error (need to reset)
 11. LED flashing occasionally = logging a data record
+12. An optional config file is now supported.  If config.txt exists at the root of the SD card, the code will read it.
+It ignores text and reads the first long integer as the min time between samples.  If the file is not present, a min time
+of 0 seconds is assumed.
 
 
 

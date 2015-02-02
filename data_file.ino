@@ -44,7 +44,7 @@ void data_file::start(void)
 
 void data_file::make_timestamp(String &s)
 {
-    int offset_ms = ms_since_second_started();
+    long offset_ms = ms_since_second_started();
     
     DateTime now = rtc.now();
 
@@ -177,38 +177,75 @@ void data_file::new_dmm_data(int * pdata)
 
   if (is_started())
   {
-    SD.mkdir(m_dirname);
-  
-    File dataFile = SD.open(m_fullpath, FILE_WRITE);
-  
-    if (dataFile)
+    boolean early = ((millis() - m_last_record_written_ms) < m_min_interval_ms);
+
+    m_averager.add(value_string);
+    
+    if (   m_header_written
+        && early
+        && !ui.is_event_now()
+       )
     {
-      if (!m_header_written)
-      {
-        m_header_written = true;
-        dataFile.println("Date, Seconds, Event, Value, Units, Notes");
-      }
-      dataFile.print(timestamp_string);
-      dataFile.print(", ");
-      if (ui.is_event_now())
-        dataFile.print(ui.get_event_num());
-      dataFile.print(", ");
-      dataFile.print(value_string);
-      dataFile.print(", ");
-      dataFile.print(units_string);
-      dataFile.print(", ");
-      dataFile.println(notes_string);
-      dataFile.close();
-    }  
+      //--------------------------------
+      // Skip this record
+      //
+      // Revisit:  do averaging stuff?
+      //--------------------------------
+      //Serial.print("skipped: ");
+      //Serial.print((millis() - m_last_record_written_ms));
+      //Serial.print(", min_ms: ");
+      //Serial.println(m_min_interval_ms);
+    }
     else
     {
-      Serial.println("file error");
-      ui.error();
-      stop();
+      //-------------------------
+      // Log this record:
+      //-------------------------
+      SD.mkdir(m_dirname);
+
+      File dataFile = SD.open(m_fullpath, FILE_WRITE);
+    
+      if (dataFile)
+      {
+        ui.new_frame();
+        
+        // Don't update the time if this record is early.  We want to keep the
+        // same timing even if the user presses the event button (but we do want
+        // to log data near the time of their event...
+        if (!early)
+          m_last_record_written_ms = millis();
+
+        if (!m_header_written)
+        {
+          m_header_written = true;
+          dataFile.println("Date, Seconds, Event, Value, Units, Notes, Avg");
+        }
+        
+        dataFile.print(timestamp_string);
+        dataFile.print(", ");
+        if (ui.is_event_now())
+          dataFile.print(ui.get_event_num());
+        dataFile.print(", ");
+        dataFile.print(value_string);
+        dataFile.print(", ");
+        dataFile.print(units_string);
+        dataFile.print(", ");
+        dataFile.print(notes_string);
+        dataFile.print(", ");
+        dataFile.println(m_averager.get_as_str());
+        dataFile.close();
+
+        m_averager.clear();
+        Serial.println(value_string);
+      }  
+      else
+      {
+        Serial.println("file error");
+        ui.error();
+        stop();
+      }
     }
   }
-  
-  //Serial.println(value_string);
 }
 
 

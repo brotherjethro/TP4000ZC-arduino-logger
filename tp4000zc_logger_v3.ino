@@ -68,6 +68,8 @@ void setup()
         Serial.println("SD card failed or missing");
         ui.error();
     }
+    
+    read_config_file();
 }
 
 
@@ -102,11 +104,28 @@ void loop()
     
     if (!bad_frame)
     {
-      ui.new_frame();
       my_data_file.new_dmm_data(&dmm_raw_buffer[0]);
     }
   }  
 }
 
+
+
+void read_config_file(void)
+{
+  File configFile = SD.open("/config.txt", FILE_READ);
+  
+  if (configFile)
+  {
+    // Note that the text content of the file is ignored.
+    // We just look for integers in a specific order:
+    long min_ms = configFile.parseInt();
+
+    Serial.print("Config file found, min_interval_ms = ");
+    Serial.println(min_ms);    
+    my_data_file.set_min_interval(min_ms);
+    configFile.close();
+  }
+}
 
 
