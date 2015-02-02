@@ -186,11 +186,9 @@ void data_file::new_dmm_data(int * pdata)
         && !ui.is_event_now()
        )
     {
-      //--------------------------------
-      // Skip this record
-      //
-      // Revisit:  do averaging stuff?
-      //--------------------------------
+      //----------------------------------
+      // Skip this record.  Nothing to do.
+      //----------------------------------
       //Serial.print("skipped: ");
       //Serial.print((millis() - m_last_record_written_ms));
       //Serial.print(", min_ms: ");
